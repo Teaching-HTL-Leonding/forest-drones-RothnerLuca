@@ -1,0 +1,44 @@
+.isActive {
+  color: green;
+}
+
+.isNotActive {
+  color: red;
+}
+
+.panel-length {
+  width: 100%;
+}
+
+mat-action-row {
+  place-content: space-between;
+}
+
+.input-width {
+  width: 70px;
+}
+
+#damaged-trees-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#damaged-trees-table td, #damaged-trees-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#damaged-trees-table tr:nth-child(even){background-color: #f2f2f29c;}
+
+#damaged-trees-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #04AA6D;
+  color: white;
+}
+
+#txt-align-center {
+  text-align: center;
+}
