@@ -42,3 +42,12 @@ mat-action-row {
 #txt-align-center {
   text-align: center;
 }
+
+.flex {
+  display: flex;
+}
+
+.space-left {
+  margin-left: 10px;
+}
+

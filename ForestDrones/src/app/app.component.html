@@ -1,62 +1,74 @@
-<div class="drone-list">
-  <router-outlet></router-outlet>
+<router-outlet></router-outlet>
 
-  <h1>Drones</h1>
+<div class="flex site">
 
-  <div *ngFor="let drone of dronesFromServer">
-    <mat-expansion-panel class="panel-length">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Drone {{drone.id}}
-        </mat-panel-title>
-        <mat-panel-description>
-          <mat-icon class="isActive" *ngIf="drone.isActive">airplanemode_active</mat-icon>
-          <mat-icon class="isNotActive" *ngIf="!drone.isActive">airplanemode_inactive</mat-icon>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <p *ngIf="drone.position">Position: {{drone.position.x}} {{drone.position.y}}</p>
-      <p *ngIf="!drone.position">No Position</p>
-      <mat-action-row>
-        <div>
-          <mat-form-field class="input-width">
-            <mat-label>X</mat-label>
-            <input *ngIf="drone.position" matInput [(ngModel)]="posX">
-            <input *ngIf="!drone.position" matInput value="-" readonly>
-          </mat-form-field>
-          <mat-form-field class="input-width">
-            <mat-label>Y</mat-label>
-            <input *ngIf="drone.position" matInput [(ngModel)]="posY">
-            <input *ngIf="!drone.position" matInput value="-" readonly>
-          </mat-form-field>
-          <button mat-stroked-button color="primary" [disabled]="!drone.isActive" (click)="updatePosition(drone.id, posX, posY)">Fly</button>
-        </div>
-        <button mat-flat-button color="primary" [disabled]="!drone.isActive" (click)="scanArea(drone.id)">Scan</button>
-        <button mat-flat-button [color]="drone.isActive ? 'accent' : 'warn'" (click)="drone.isActive ? shutdownDrone(drone.id) : activateDrone(drone.id)">{{drone.isActive ? 'Deactivate' : 'Activate'}}</button>
-      </mat-action-row>
-    </mat-expansion-panel>
-    <br>
+  <div class="position-field">
+    <h1>Current Position</h1>
+
+    <div>
+      <mat-form-field class="input-width">
+        <mat-label>X</mat-label>
+        <input matInput [(ngModel)]="userPosX">
+      </mat-form-field>
+      <mat-form-field class="input-width space-left">
+        <mat-label>Y</mat-label>
+        <input matInput [(ngModel)]="userPosY">
+      </mat-form-field>
+      <button class="space-left" mat-flat-button color="primary" (click)="updateUserPos(userPosX, userPosY)">Update</button>
+    </div>
+
   </div>
 
-  <div *ngIf="damagedTrees">
+  <div class="drone-list">
 
-    <h1>Damaged Trees</h1>
+    <h1>Drone Overview</h1>
 
-    <table id="damaged-trees-table">
-      <tr>
-        <th>Position X</th>
-        <th>Position Y</th>
-        <th>Mark as examined</th>
-      </tr>
-      <tr *ngFor="let tree of damagedTrees">
-        <td id="txt-align-center">{{tree.x}}</td>
-        <td id="txt-align-center">{{tree.y}}</td>
-        <td id="txt-align-center">
-          <button mat-raised-button (click)="markAsExamined(tree.x, tree.y)">Examine</button>
-        </td>
-      </tr>
-    </table>
+    <div *ngFor="let drone of dronesFromServer">
+      <mat-expansion-panel class="panel-length">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Drone {{drone.id}}
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-icon class="isActive" *ngIf="drone.isActive">airplanemode_active</mat-icon>
+            <mat-icon class="isNotActive" *ngIf="!drone.isActive">airplanemode_inactive</mat-icon>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <p *ngIf="drone.position">Position: {{drone.position.x}} {{drone.position.y}}</p>
+        <p *ngIf="!drone.position">No Position</p>
+        <mat-action-row>
+          <button mat-stroked-button color="primary" [disabled]="!drone.isActive" (click)="flyTo(drone.id, userPosX, userPosY)">Fly To Me</button>
+          <button mat-flat-button color="primary" [disabled]="!drone.isActive" (click)="scanArea(drone.id)">Scan</button>
+          <button mat-flat-button [color]="drone.isActive ? 'accent' : 'warn'" (click)="drone.isActive ? shutdownDrone(drone.id) : activateDrone(drone.id)">{{drone.isActive ? 'Deactivate' : 'Activate'}}</button>
+        </mat-action-row>
+      </mat-expansion-panel>
+      <br>
+    </div>
+
+    <div *ngIf="damagedTrees">
+
+      <h1>Damaged Trees</h1>
+
+      <table id="damaged-trees-table">
+        <tr>
+          <th>Position X</th>
+          <th>Position Y</th>
+          <th>Mark as examined</th>
+        </tr>
+        <tr *ngFor="let tree of damagedTrees">
+          <td id="txt-align-center">{{tree.x}}</td>
+          <td id="txt-align-center">{{tree.y}}</td>
+          <td id="txt-align-center">
+            <button mat-raised-button (click)="markAsExamined(tree.x, tree.y)">Examine</button>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
+
 </div>
+
+
 
 
 

@@ -10,14 +10,14 @@ import { DroneLogicService } from './drone-logic.service';
 export class AppComponent implements OnInit {
 
   dronesFromServer?: Drones;
-  posX: number;
-  posY: number;
   scanResponse?: Scan;
   damagedTrees?: DamagedTree[];
+  userPosX: number;
+  userPosY: number;
 
   constructor(public api: DroneLogicService) {
-    this.posX = 0;
-    this.posY = 0;
+    this.userPosX = 0;
+    this.userPosY = 0;
    }
 
   ngOnInit(): void {
@@ -34,8 +34,7 @@ export class AppComponent implements OnInit {
     this.api.shutdownDrone(id).subscribe(() => this.ngOnInit());
   }
 
-  public updatePosition(id: number, x: number, y: number): void {
-
+  public updateUserPos(x: number, y: number): void {
     if (x > 750) {
       x = 750;
     } else if (x < -750) {
@@ -48,10 +47,13 @@ export class AppComponent implements OnInit {
       y = -750;
     }
 
+    this.userPosX = x;
+    this.userPosY = y;
+  }
+
+  public flyTo(id: number, x: number, y: number): void {
     this.api.flyTo(id, x, y).subscribe(() => {
       this.ngOnInit();
-      this.posX = 0;
-      this.posY = 0;
      });
   }
 
