@@ -8,13 +8,12 @@
     <div>
       <mat-form-field class="input-width">
         <mat-label>X</mat-label>
-        <input matInput [(ngModel)]="userPosX">
+        <input matInput [(ngModel)]="userPosX" (change)="userPosOnChange()">
       </mat-form-field>
       <mat-form-field class="input-width space-left">
         <mat-label>Y</mat-label>
-        <input matInput [(ngModel)]="userPosY">
+        <input matInput [(ngModel)]="userPosY" (change)="userPosOnChange()">
       </mat-form-field>
-      <button class="space-left" mat-flat-button color="primary" (click)="updateUserPos(userPosX, userPosY)">Update</button>
     </div>
 
   </div>
@@ -37,33 +36,65 @@
         <p *ngIf="drone.position">Position: {{drone.position.x}} {{drone.position.y}}</p>
         <p *ngIf="!drone.position">No Position</p>
         <mat-action-row>
-          <button mat-stroked-button color="primary" [disabled]="!drone.isActive" (click)="flyTo(drone.id, userPosX, userPosY)">Fly To Me</button>
-          <button mat-flat-button color="primary" [disabled]="!drone.isActive" (click)="scanArea(drone.id)">Scan</button>
+          <!-- <button mat-stroked-button color="primary" [disabled]="!drone.isActive" (click)="flyTo(drone.id, userPosX, userPosY)">Fly To Me</button> -->
+          <!-- <button mat-flat-button color="primary" [disabled]="!drone.isActive" (click)="scanArea(drone.id)">Scan</button> -->
+          <button mat-flat-button color="primary" [disabled]="!drone.isActive" (click)="flyToUserAndScanArea(drone.id)">Fly & Scan</button>
           <button mat-flat-button [color]="drone.isActive ? 'accent' : 'warn'" (click)="drone.isActive ? shutdownDrone(drone.id) : activateDrone(drone.id)">{{drone.isActive ? 'Deactivate' : 'Activate'}}</button>
         </mat-action-row>
       </mat-expansion-panel>
       <br>
     </div>
 
-    <div *ngIf="damagedTrees">
+    <div *ngIf="closestDamagedTrees!.length > 0">
 
-      <h1>Damaged Trees</h1>
+      <div class="flex">
+        <h1>Closest Damaged Trees</h1>
+        <h2 *ngIf="reloadNeeded()">&nbsp;(scan to update data)</h2>
+      </div>
 
       <table id="damaged-trees-table">
         <tr>
           <th>Position X</th>
           <th>Position Y</th>
+          <th>Distance (m)</th>
           <th>Mark as examined</th>
         </tr>
-        <tr *ngFor="let tree of damagedTrees">
+        <tr *ngFor="let tree of closestDamagedTrees">
           <td id="txt-align-center">{{tree.x}}</td>
           <td id="txt-align-center">{{tree.y}}</td>
+          <td id="txt-align-center">{{ getDistanceToTree(tree.x, tree.y) }}</td>
           <td id="txt-align-center">
             <button mat-raised-button (click)="markAsExamined(tree.x, tree.y)">Examine</button>
           </td>
         </tr>
       </table>
     </div>
+
+    <div *ngIf="damagedTrees">
+
+      <div class="flex">
+        <h1>Damaged Trees</h1>
+        <h2 *ngIf="reloadNeeded()">&nbsp;(scan to update data)</h2>
+      </div>
+
+      <table id="damaged-trees-table">
+        <tr>
+          <th>Position X</th>
+          <th>Position Y</th>
+          <th>Distance (m)</th>
+          <th>Mark as examined</th>
+        </tr>
+        <tr *ngFor="let tree of damagedTrees">
+          <td id="txt-align-center">{{tree.x}}</td>
+          <td id="txt-align-center">{{tree.y}}</td>
+          <td id="txt-align-center">{{ getDistanceToTree(tree.x, tree.y) }}</td>
+          <td id="txt-align-center">
+            get closer to examine
+          </td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 
 </div>

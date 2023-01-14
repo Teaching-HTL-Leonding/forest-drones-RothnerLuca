@@ -12,12 +12,17 @@ export class AppComponent implements OnInit {
   dronesFromServer?: Drones;
   scanResponse?: Scan;
   damagedTrees?: DamagedTree[];
+  closestDamagedTrees?: DamagedTree[] = [];
   userPosX: number;
   userPosY: number;
+  lastUserPosX: number;
+  lastUserPosY: number;
 
   constructor(public api: DroneLogicService) {
     this.userPosX = 0;
     this.userPosY = 0;
+    this.lastUserPosX = 0;
+    this.lastUserPosY = 0;
    }
 
   ngOnInit(): void {
@@ -34,52 +39,76 @@ export class AppComponent implements OnInit {
     this.api.shutdownDrone(id).subscribe(() => this.ngOnInit());
   }
 
-  public updateUserPos(x: number, y: number): void {
-    if (x > 750) {
-      x = 750;
-    } else if (x < -750) {
-      x = -750;
+  public userPosOnChange() :void {
+    if (this.userPosX > 750) {
+      console.log('> 750')
+      this.userPosX = 750;
+    } else if (this.userPosX < -750) {
+      this.userPosX = -750;
     }
 
-    if (y > 750) {
-      y = 750;
-    } else if (y < -750) {
-      y = -750;
+    if (this.userPosY > 750) {
+      this.userPosY = 750;
+    } else if (this.userPosY < -750) {
+      this.userPosY = -750;
     }
-
-    this.userPosX = x;
-    this.userPosY = y;
   }
 
-  public flyTo(id: number, x: number, y: number): void {
-    this.api.flyTo(id, x, y).subscribe(() => {
+  public flyToUserAndScanArea(id: number): void {
+    this.api.flyTo(id, this.userPosX, this.userPosY).subscribe(() => {
+      this.lastUserPosX = this.userPosX;
+      this.lastUserPosY = this.userPosY;
+      this.api.scanArea(id).subscribe((data) => {
+        if (!this.damagedTrees) {
+          this.damagedTrees = data.damagedTrees;
+        } else {
+          let alreadyIn = false;
+          data.damagedTrees.forEach((scanTree) => {
+            this.damagedTrees?.forEach((damagedTree) => {
+              if (scanTree.x === damagedTree.x && scanTree.y === damagedTree.y) {
+                alreadyIn = true;
+              }
+            });
+            if (!alreadyIn) {
+              this.damagedTrees?.push(scanTree);
+              alreadyIn = false;
+            }
+          });
+        }
+
+        let isInArray = false;
+        this.damagedTrees.forEach((tree) => {
+          if (this.getDistanceToTree(tree.x, tree.y) < 100) {
+            this.closestDamagedTrees?.forEach((t) => {
+              if (t.x === tree.x && t.y === tree.y) {
+                isInArray = true;
+              }
+            });
+            if (!isInArray) this.closestDamagedTrees?.push(tree);
+            this.damagedTrees = this.damagedTrees?.filter((t) => t.x !== tree.x || t.y !== tree.y);
+          }
+        });
+
+        this.closestDamagedTrees = this.closestDamagedTrees?.filter((tree) => this.getDistanceToTree(tree.x, tree.y) <= 100);
+      });
       this.ngOnInit();
      });
   }
 
-  public scanArea(id: number): void {
-    this.api.scanArea(id).subscribe((data) => {
-      if (!this.damagedTrees) {
-        this.damagedTrees = data.damagedTrees;
-      } else {
-        let alreadyIn = false;
-        data.damagedTrees.forEach((scanTree) => {
-          this.damagedTrees?.forEach((damagedTree) => {
-            if (scanTree.x === damagedTree.x && scanTree.y === damagedTree.y) {
-              alreadyIn = true;
-            }
-          });
-          if (!alreadyIn) {
-            this.damagedTrees?.push(scanTree);
-            alreadyIn = false;
-          }
-        });
-      }
-    });
+  public reloadNeeded(): boolean {
+    if (this.lastUserPosX !== this.userPosX || this.lastUserPosY !== this.userPosY) {
+      return true;
+    }
+    return false;
   }
 
   public markAsExamined(x: number, y: number): void {
     this.api.markAsExamined(x, y).subscribe();
-    this.damagedTrees = this.damagedTrees?.filter((el) => el.x !== x && el.y !== y);
+    this.damagedTrees = this.damagedTrees?.filter((el) => el.x !== x || el.y !== y);
+    this.closestDamagedTrees = this.closestDamagedTrees?.filter((el) => el.x !== x || el.y !== y);
+  }
+
+  public getDistanceToTree(treePosX: number, treePosY: number): number {
+    return Math.abs(this.userPosX - treePosX) + Math.abs(this.userPosY - treePosY);
   }
 }
